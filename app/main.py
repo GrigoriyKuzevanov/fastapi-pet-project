@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from app.routers import books
 
+from app.routers import books
 
 app = FastAPI()
 
