@@ -14,7 +14,9 @@ class Author(Base):
     birth_year: Mapped[date] = mapped_column(Date)
     death_year: Mapped[date | None] = mapped_column(Date)
 
-    books: Mapped[list["Book"]] = relationship("Book", back_populates="author")
+    books: Mapped[list["Book"]] = relationship(
+        "Book", back_populates="author", cascade="all, delete-orphan"
+    )
 
 
 class Book(Base):
@@ -26,6 +28,4 @@ class Book(Base):
     description: Mapped[str | None] = mapped_column(String)
     author_id: Mapped[int] = mapped_column(ForeignKey("author.id"), nullable=False)
 
-    author: Mapped[Author] = relationship(
-        "Author", back_populates="books", cascade="all, delete-orphan"
-    )
+    author: Mapped[Author] = relationship("Author", back_populates="books")
