@@ -2,8 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app import schemas
-from app.routers import dependencies
-from app.routers import crud
+from app.routers import crud, dependencies
 
 router = APIRouter(
     prefix="/books",
@@ -41,7 +40,9 @@ async def get_book(book_id: int, session: Session = Depends(dependencies.get_db)
     summary="Update the book from the db by given id",
 )
 async def update_book(
-    book_id: int, book: schemas.BookCreate, session: Session = Depends(dependencies.get_db)
+    book_id: int,
+    book: schemas.BookCreate,
+    session: Session = Depends(dependencies.get_db),
 ):
     db_book = crud.update_book_by_id(session=session, book_id=book_id, book=book)
     if db_book is None:
@@ -59,7 +60,9 @@ async def update_book(
     summary="Create a new book in the db by given author id",
 )
 async def post_book(
-    author_id: int, book: schemas.BookCreate, session: Session = Depends(dependencies.get_db)
+    author_id: int,
+    book: schemas.BookCreate,
+    session: Session = Depends(dependencies.get_db),
 ):
     return crud.create_book(session=session, book=book, author_id=author_id)
 

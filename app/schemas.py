@@ -33,7 +33,7 @@ class AuthorCreate(AuthorBase):
 
 class Author(AuthorBase):
     id: int
-    books: list[Book] = []
+    # books: list[Book] = []
 
     class Config:
         from_attributes = True

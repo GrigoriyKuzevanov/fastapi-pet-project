@@ -14,7 +14,7 @@ class Author(Base):
     birth_year: Mapped[date] = mapped_column(Date)
     death_year: Mapped[date | None] = mapped_column(Date)
 
-    books: Mapped[list["Book"]] = relationship(
+    books: Mapped[list["Book"] | None] = relationship(
         "Book", back_populates="author", cascade="all, delete-orphan"
     )
 
