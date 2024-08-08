@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app import schemas
-from app.database import SessionLocal
+from app.routers import dependencies
 from app.routers import crud
 
 router = APIRouter(
@@ -11,19 +11,10 @@ router = APIRouter(
 )
 
 
-# TODO relocate to dependencies.py
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
 @router.get(
-    "/", response_model=list[schemas.Book], description="Get all the books from the db"
+    "/", response_model=list[schemas.Book], summary="Get all the books from the db"
 )
-async def get_books(session: Session = Depends(get_db)):
+async def get_books(session: Session = Depends(dependencies.get_db)):
     books = crud.read_books(session=session)
     return books
 
@@ -31,9 +22,9 @@ async def get_books(session: Session = Depends(get_db)):
 @router.get(
     "/{book_id}",
     response_model=schemas.Book,
-    description="Get the book from the db by given id",
+    summary="Get the book from the db by given id",
 )
-async def get_book(book_id: int, session: Session = Depends(get_db)):
+async def get_book(book_id: int, session: Session = Depends(dependencies.get_db)):
     db_book = crud.read_book_by_id(session=session, book_id=book_id)
     if db_book is None:
         raise HTTPException(
@@ -47,10 +38,10 @@ async def get_book(book_id: int, session: Session = Depends(get_db)):
 @router.put(
     "/{book_id}",
     response_model=schemas.Book,
-    description="Update the book from the db by given id",
+    summary="Update the book from the db by given id",
 )
 async def update_book(
-    book_id: int, book: schemas.BookCreate, session: Session = Depends(get_db)
+    book_id: int, book: schemas.BookCreate, session: Session = Depends(dependencies.get_db)
 ):
     db_book = crud.update_book_by_id(session=session, book_id=book_id, book=book)
     if db_book is None:
@@ -65,10 +56,10 @@ async def update_book(
 @router.post(
     "/{author_id}",
     response_model=schemas.Book,
-    description="Create a new book in the db by given author id",
+    summary="Create a new book in the db by given author id",
 )
 async def post_book(
-    author_id: int, book: schemas.BookCreate, session: Session = Depends(get_db)
+    author_id: int, book: schemas.BookCreate, session: Session = Depends(dependencies.get_db)
 ):
     return crud.create_book(session=session, book=book, author_id=author_id)
 
@@ -76,9 +67,9 @@ async def post_book(
 @router.delete(
     "/{book_id}",
     response_model=schemas.Book,
-    description="Delete the book from the db by given id",
+    summary="Delete the book from the db by given id",
 )
-async def delete_book(book_id: int, session: Session = Depends(get_db)):
+async def delete_book(book_id: int, session: Session = Depends(dependencies.get_db)):
     db_book = crud.delete_book_by_id(session=session, book_id=book_id)
     if db_book is None:
         raise HTTPException(
