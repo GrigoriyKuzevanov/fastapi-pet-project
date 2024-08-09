@@ -14,7 +14,7 @@ router = APIRouter(
     "/", response_model=list[schemas.Book], summary="Get all the books from the db"
 )
 async def get_books(session: Session = Depends(dependencies.get_db)):
-    books = crud.read_books(session=session)
+    books = crud.read_objects(session=session, db_model_type="book")
     return books
 
 
@@ -24,7 +24,9 @@ async def get_books(session: Session = Depends(dependencies.get_db)):
     summary="Get the book from the db by given id",
 )
 async def get_book(book_id: int, session: Session = Depends(dependencies.get_db)):
-    db_book = crud.read_book_by_id(session=session, book_id=book_id)
+    db_book = crud.read_object_by_id(
+        session=session, obj_id=book_id, db_model_type="book"
+    )
     if db_book is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -73,7 +75,9 @@ async def post_book(
     summary="Delete the book from the db by given id",
 )
 async def delete_book(book_id: int, session: Session = Depends(dependencies.get_db)):
-    db_book = crud.delete_book_by_id(session=session, book_id=book_id)
+    db_book = crud.delete_object_by_id(
+        session=session, obj_id=book_id, db_model_type="book"
+    )
     if db_book is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
