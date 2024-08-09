@@ -14,7 +14,7 @@ router = APIRouter(
     "/", response_model=list[schemas.Author], summary="Get all the authors from the db"
 )
 async def get_all_authors(session: Session = Depends(dependencies.get_db)):
-    db_authors = crud.read_objects(session=session, db_model_type="author")
+    db_authors = crud.read_objects(session=session, model_type="author")
     return db_authors
 
 
@@ -27,7 +27,7 @@ async def get_author_by_id(
     author_id: int, session: Session = Depends(dependencies.get_db)
 ):
     db_author = crud.read_object_by_id(
-        session=session, db_model_type="author", obj_id=author_id
+        session=session, model_type="author", obj_id=author_id
     )
     if not db_author:
         raise HTTPException(
@@ -57,8 +57,8 @@ async def update_author(
     author: schemas.AuthorCreate,
     session: Session = Depends(dependencies.get_db),
 ):
-    db_author = crud.update_author_by_id(
-        session=session, author=author, author_id=author_id
+    db_author = crud.update_object_by_id(
+        session=session, schema=author, obj_id=author_id, model_type="author"
     )
     if not db_author:
         raise HTTPException(
@@ -78,7 +78,7 @@ async def delete_author(
     author_id: int, session: Session = Depends(dependencies.get_db)
 ):
     db_author = crud.delete_object_by_id(
-        session=session, db_model_type="author", obj_id=author_id
+        session=session, model_type="author", obj_id=author_id
     )
     if db_author is None:
         raise HTTPException(
