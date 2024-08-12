@@ -32,7 +32,7 @@ def delete_object_by_id(session: Session, model_type: str, obj_id: int):
 
 
 def update_object_by_id(
-    session: Session, schema: schemas.BookCreate, obj_id: int, model_type: str
+    session: Session, schema: schemas.BaseModel, obj_id: int, model_type: str
 ):
     db_object = session.get(DB_MODEL_CHOICES[model_type], obj_id)
     if not db_object:
@@ -45,7 +45,6 @@ def update_object_by_id(
 
 
 # crud functions for books router
-# TODO добавить проверку: author с переданным auhtor_id существует в таблице
 def create_book(session: Session, book: schemas.BookCreate, author_id: int):
     db_author = session.get(models.Author, author_id)
     if not db_author:
