@@ -37,7 +37,7 @@ def update_object_by_id(
     db_object = session.get(DB_MODEL_CHOICES[model_type], obj_id)
     if not db_object:
         return None
-    for key, value in schema.model_dump().items():
+    for key, value in schema.model_dump(exclude_unset=True).items():
         setattr(db_object, key, value)
     session.commit()
     session.refresh(db_object)

@@ -56,6 +56,28 @@ async def update_book(
     return db_book
 
 
+@router.patch(
+    "/{book_id}",
+    response_model=schemas.Book,
+    summary="Partically update a book from the db by given id",
+)
+async def patch_book(
+    book_id: int,
+    book: schemas.BookPartUpdate,
+    session: Session = Depends(dependencies.get_db),
+):
+    db_book = crud.update_object_by_id(
+        session=session, schema=book, obj_id=book_id, model_type="book"
+    )
+    if db_book is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Book with id: {book_id} is not found",
+        )
+
+    return db_book
+
+
 @router.post(
     "/{author_id}",
     response_model=schemas.Book,
