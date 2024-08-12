@@ -11,8 +11,11 @@ class Author(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     fullname: Mapped[str] = mapped_column(String, nullable=False)
-    birth_year: Mapped[date] = mapped_column(Date)
-    death_year: Mapped[date | None] = mapped_column(Date)
+    first_name: Mapped[str] = mapped_column(String, nullable=False)
+    last_name: Mapped[str] = mapped_column(String, nullable=False)
+    patronymic: Mapped[str | None] = mapped_column(String)
+    birth_date: Mapped[date] = mapped_column(Date)
+    death_date: Mapped[date | None] = mapped_column(Date)
 
     books: Mapped[list["Book"] | None] = relationship(
         "Book", back_populates="author", cascade="all, delete-orphan"
@@ -24,7 +27,9 @@ class Book(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     title: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
-    publish_year: Mapped[date] = mapped_column(Date, nullable=False, index=True)
+    genre: Mapped[str] = mapped_column(String(80), nullable=False)
+    language: Mapped[str] = mapped_column(String(50), nullable=False)
+    publish_date: Mapped[date] = mapped_column(Date, nullable=False, index=True)
     description: Mapped[str | None] = mapped_column(String)
     author_id: Mapped[int] = mapped_column(ForeignKey("author.id"), nullable=False)
 

@@ -1,11 +1,13 @@
-from datetime import datetime
+from datetime import date
 
 from pydantic import BaseModel
 
 
 class BookBase(BaseModel):
     title: str
-    publish_year: datetime
+    genre: str
+    language: str
+    publish_date: date
     description: str | None = None
 
 
@@ -23,8 +25,11 @@ class Book(BookBase):
 
 class AuthorBase(BaseModel):
     fullname: str
-    birth_year: datetime
-    death_year: datetime | None = None
+    first_name: str
+    last_name: str
+    patronymic: str | None = None
+    birth_date: date
+    death_date: date | None = None
 
 
 class AuthorCreate(AuthorBase):
