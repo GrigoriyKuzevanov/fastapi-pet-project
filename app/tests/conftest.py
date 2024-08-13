@@ -74,3 +74,25 @@ def post_author():
         "death_date": "1850-12-12",
     }
     return test_author
+
+
+@pytest.fixture()
+def update_author():
+    test_update_author = {
+        "fullname": "Test update fullname",
+        "first_name": "Test update first name",
+        "last_name": "Test update last name",
+        "patronymic": "Test update patronymic",
+        "birth_date": "1900-01-01",
+        "death_date": "1950-12-12",
+    }
+    return test_update_author
+
+
+@pytest.fixture()
+def partically_update_author():
+    test_update_author = {
+        "fullname": "Test patch fullname",
+        "birth_date": "1700-01-01",
+    }
+    return test_update_author
