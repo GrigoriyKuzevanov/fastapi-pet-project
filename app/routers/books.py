@@ -80,6 +80,7 @@ async def patch_book(
 
 @router.post(
     "/{author_id}",
+    status_code=status.HTTP_201_CREATED,
     response_model=schemas.Book,
     summary="Create a new book in the db by given author id",
 )
@@ -100,6 +101,7 @@ async def post_book(
 
 @router.delete(
     "/{book_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
     response_model=schemas.Book,
     summary="Delete the book from the db by given id",
 )
@@ -112,5 +114,3 @@ async def delete_book(book_id: int, session: Session = Depends(dependencies.get_
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Book with id: {book_id} is not found",
         )
-
-    return db_book

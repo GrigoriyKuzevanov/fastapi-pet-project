@@ -39,7 +39,7 @@ async def get_author_by_id(
 
 
 @router.post(
-    "/", response_model=schemas.Author, summary="Create a new author in the db"
+    "/", status_code=status.HTTP_201_CREATED, response_model=schemas.Author, summary="Create a new author in the db"
 )
 async def post_author(
     author: schemas.AuthorCreate, session: Session = Depends(dependencies.get_db)
@@ -93,6 +93,7 @@ async def patch_author(
 
 @router.delete(
     "/{author_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
     response_model=schemas.Author,
     summary="Delete an author from the db by given id",
 )
@@ -107,5 +108,3 @@ async def delete_author(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Author with id: {author_id} is not found",
         )
-
-    return db_author
