@@ -102,7 +102,6 @@ async def post_book(
 @router.delete(
     "/{book_id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    response_model=schemas.Book,
     summary="Delete the book from the db by given id",
 )
 async def delete_book(book_id: int, session: Session = Depends(dependencies.get_db)):

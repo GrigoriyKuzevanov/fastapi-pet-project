@@ -1,19 +1,26 @@
-import os
 from logging.config import fileConfig
 
-from alembic import context
-from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
 
+from alembic import context
+from app.config import settings
 from app.models import Author, Book
-
-load_dotenv()
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
-config.set_main_option("DB_URL", os.environ["DB_URL"])
+DB_PORT = settings.db_port
+DB_USER = settings.db_user
+DB_NAME = settings.db_name
+DB_HOST = settings.db_host
+DB_PASSWORD = settings.db_password
+
+config.set_main_option(
+    "sqlalchemy.url",
+    f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}",
+)
+
 # config.set_main_option("script_location", "app/migrations")
 
 # Interpret the config file for Python logging.
