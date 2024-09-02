@@ -9,6 +9,7 @@ class BookBase(BaseModel):
     language: str
     publish_date: date | None = None
     description: str
+    author_id: int
 
 
 class BookCreate(BookBase):

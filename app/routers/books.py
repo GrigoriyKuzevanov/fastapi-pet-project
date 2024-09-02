@@ -57,21 +57,20 @@ def update_book(
 
 
 @router.post(
-    "/{author_id}",
+    "/",
     status_code=status.HTTP_201_CREATED,
     response_model=schemas.BookOut,
     summary="Create a new book in the db by given author id",
 )
 def post_book(
-    author_id: int,
     book: schemas.BookCreate,
     session: Session = Depends(dependencies.get_db),
 ):
-    db_book = crud.create_book(session=session, book=book, author_id=author_id)
+    db_book = crud.create_book(session=session, book=book)
     if db_book is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Author with id: {author_id} is not found",
+            detail=f"Author with id: {book.author_id} is not found",
         )
 
     return db_book

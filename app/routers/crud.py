@@ -45,11 +45,11 @@ def update_object_by_id(
 
 
 # crud functions for books router
-def create_book(session: Session, book: schemas.BookCreate, author_id: int):
-    db_author = session.get(models.Author, author_id)
+def create_book(session: Session, book: schemas.BookCreate):
+    db_author = session.get(models.Author, book.author_id)
     if not db_author:
         return None
-    db_book = models.Book(**book.model_dump(), author_id=author_id)
+    db_book = models.Book(**book.model_dump())
     session.add(db_book)
     session.commit()
     session.refresh(db_book)
