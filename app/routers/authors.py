@@ -72,28 +72,6 @@ def update_author(
     return db_author
 
 
-@router.patch(
-    "/{author_id}",
-    response_model=schemas.AuthorOut,
-    summary="Partically update an author from the db by given id",
-)
-def patch_author(
-    author_id: int,
-    author: schemas.AuthorPartUpdate,
-    session: Session = Depends(dependencies.get_db),
-):
-    db_author = crud.update_object_by_id(
-        session=session, schema=author, obj_id=author_id, model_type="author"
-    )
-    if not db_author:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Author with id: {author_id} is not found",
-        )
-
-    return db_author
-
-
 @router.delete(
     "/{author_id}",
     status_code=status.HTTP_204_NO_CONTENT,
