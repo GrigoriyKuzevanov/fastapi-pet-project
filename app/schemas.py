@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 from pydantic import BaseModel
 
@@ -7,8 +7,8 @@ class BookBase(BaseModel):
     title: str
     genre: str
     language: str
-    publish_date: date
-    description: str | None = None
+    publish_date: date | None = None
+    description: str
 
 
 class BookCreate(BookBase):
@@ -20,11 +20,13 @@ class BookPartUpdate(BookBase):
     genre: str | None = None
     language: str | None = None
     publish_date: date | None = None
+    description: str | None = None
 
 
-class Book(BookBase):
+class BookOut(BookBase):
     id: int
     author_id: int
+    created_at: datetime
 
     class Config:
         from_attributes = True
@@ -32,11 +34,9 @@ class Book(BookBase):
 
 class AuthorBase(BaseModel):
     fullname: str
-    first_name: str
-    last_name: str
-    patronymic: str | None = None
-    birth_date: date
+    birth_date: date | None = None
     death_date: date | None = None
+    description: str
 
 
 class AuthorCreate(AuthorBase):
@@ -45,14 +45,15 @@ class AuthorCreate(AuthorBase):
 
 class AuthorPartUpdate(AuthorBase):
     fullname: str | None = None
-    first_name: str | None = None
-    last_name: str | None = None
     birth_date: date | None = None
+    death_date: date | None = None
+    description: str | None
 
 
-class Author(AuthorBase):
+class AuthorOut(AuthorBase):
     id: int
-    # books: list[Book] = []
+    created_at: datetime
+    books: list[BookOut] = []
 
     class Config:
         from_attributes = True

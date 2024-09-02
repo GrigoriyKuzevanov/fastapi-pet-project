@@ -11,19 +11,19 @@ router = APIRouter(
 
 
 @router.get(
-    "/", response_model=list[schemas.Author], summary="Get all the authors from the db"
+    "/", response_model=list[schemas.AuthorOut], summary="Get all the authors from the db"
 )
-async def get_all_authors(session: Session = Depends(dependencies.get_db)):
+def get_all_authors(session: Session = Depends(dependencies.get_db)):
     db_authors = crud.read_objects(session=session, model_type="author")
     return db_authors
 
 
 @router.get(
     "/{author_id}",
-    response_model=schemas.Author,
+    response_model=schemas.AuthorOut,
     summary="Get the author from the db by given id",
 )
-async def get_author_by_id(
+def get_author_by_id(
     author_id: int, session: Session = Depends(dependencies.get_db)
 ):
     db_author = crud.read_object_by_id(
@@ -41,10 +41,10 @@ async def get_author_by_id(
 @router.post(
     "/",
     status_code=status.HTTP_201_CREATED,
-    response_model=schemas.Author,
+    response_model=schemas.AuthorOut,
     summary="Create a new author in the db",
 )
-async def post_author(
+def post_author(
     author: schemas.AuthorCreate, session: Session = Depends(dependencies.get_db)
 ):
     return crud.create_author(session=session, author=author)
@@ -52,10 +52,10 @@ async def post_author(
 
 @router.put(
     "/{author_id}",
-    response_model=schemas.Author,
+    response_model=schemas.AuthorOut,
     summary="Update an author from the db by given id",
 )
-async def update_author(
+def update_author(
     author_id: int,
     author: schemas.AuthorCreate,
     session: Session = Depends(dependencies.get_db),
@@ -74,10 +74,10 @@ async def update_author(
 
 @router.patch(
     "/{author_id}",
-    response_model=schemas.Author,
+    response_model=schemas.AuthorOut,
     summary="Partically update an author from the db by given id",
 )
-async def patch_author(
+def patch_author(
     author_id: int,
     author: schemas.AuthorPartUpdate,
     session: Session = Depends(dependencies.get_db),
@@ -99,7 +99,7 @@ async def patch_author(
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete an author from the db by given id",
 )
-async def delete_author(
+def delete_author(
     author_id: int, session: Session = Depends(dependencies.get_db)
 ):
     db_author = crud.delete_object_by_id(

@@ -11,7 +11,7 @@ router = APIRouter(
 
 
 @router.get(
-    "/", response_model=list[schemas.Book], summary="Get all the books from the db"
+    "/", response_model=list[schemas.BookOut], summary="Get all the books from the db"
 )
 def get_books(session: Session = Depends(dependencies.get_db)):
     books = crud.read_objects(session=session, model_type="book")
@@ -20,7 +20,7 @@ def get_books(session: Session = Depends(dependencies.get_db)):
 
 @router.get(
     "/{book_id}",
-    response_model=schemas.Book,
+    response_model=schemas.BookOut,
     summary="Get the book from the db by given id",
 )
 def get_book(book_id: int, session: Session = Depends(dependencies.get_db)):
@@ -36,7 +36,7 @@ def get_book(book_id: int, session: Session = Depends(dependencies.get_db)):
 
 @router.put(
     "/{book_id}",
-    response_model=schemas.Book,
+    response_model=schemas.BookOut,
     summary="Update the book from the db by given id",
 )
 def update_book(
@@ -58,7 +58,7 @@ def update_book(
 
 @router.patch(
     "/{book_id}",
-    response_model=schemas.Book,
+    response_model=schemas.BookOut,
     summary="Partically update a book from the db by given id",
 )
 def patch_book(
@@ -81,7 +81,7 @@ def patch_book(
 @router.post(
     "/{author_id}",
     status_code=status.HTTP_201_CREATED,
-    response_model=schemas.Book,
+    response_model=schemas.BookOut,
     summary="Create a new book in the db by given author id",
 )
 def post_book(
