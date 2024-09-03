@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app import schemas
+from app import database, schemas
 from app.routers import crud, dependencies
 
 router = APIRouter(
@@ -11,9 +11,11 @@ router = APIRouter(
 
 
 @router.get(
-    "/", response_model=list[schemas.AuthorOut], summary="Get all the authors from the db"
+    "/",
+    response_model=list[schemas.AuthorOut],
+    summary="Get all the authors from the db",
 )
-def get_all_authors(session: Session = Depends(dependencies.get_db)):
+def get_all_authors(session: Session = Depends(database.get_db)):
     db_authors = crud.read_objects(session=session, model_type="author")
     return db_authors
 
@@ -23,9 +25,7 @@ def get_all_authors(session: Session = Depends(dependencies.get_db)):
     response_model=schemas.AuthorOut,
     summary="Get the author from the db by given id",
 )
-def get_author_by_id(
-    author_id: int, session: Session = Depends(dependencies.get_db)
-):
+def get_author_by_id(author_id: int, session: Session = Depends(database.get_db)):
     db_author = crud.read_object_by_id(
         session=session, model_type="author", obj_id=author_id
     )
@@ -45,7 +45,8 @@ def get_author_by_id(
     summary="Create a new author in the db",
 )
 def post_author(
-    author: schemas.AuthorCreate, session: Session = Depends(dependencies.get_db)
+    author: schemas.AuthorCreate = Depends(dependencies.check_author_exists),
+    session: Session = Depends(database.get_db),
 ):
     return crud.create_author(session=session, author=author)
 
@@ -58,7 +59,7 @@ def post_author(
 def update_author(
     author_id: int,
     author: schemas.AuthorCreate,
-    session: Session = Depends(dependencies.get_db),
+    session: Session = Depends(database.get_db),
 ):
     db_author = crud.update_object_by_id(
         session=session, schema=author, obj_id=author_id, model_type="author"
@@ -77,9 +78,7 @@ def update_author(
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete an author from the db by given id",
 )
-def delete_author(
-    author_id: int, session: Session = Depends(dependencies.get_db)
-):
+def delete_author(author_id: int, session: Session = Depends(database.get_db)):
     db_author = crud.delete_object_by_id(
         session=session, model_type="author", obj_id=author_id
     )
