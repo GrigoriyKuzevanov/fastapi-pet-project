@@ -1,6 +1,25 @@
 from datetime import date, datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
+
+
+class UserBase(BaseModel):
+    username: str
+    password: str
+    
+
+class UserCreate(UserBase):
+    email: EmailStr
+
+
+class UserOut(BaseModel):
+    id: int
+    username: str
+    email: EmailStr
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
 
 
 class BookBase(BaseModel):
