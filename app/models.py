@@ -22,7 +22,9 @@ class Author(Base):
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
 
-    books: Mapped[list["Book"] | None] = relationship("Book", back_populates="author")
+    books: Mapped[list["Book"] | None] = relationship(
+        "Book", back_populates="author", cascade="all, delete"
+    )
 
 
 class Book(Base):
@@ -60,4 +62,6 @@ class User(Base):
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
 
-    books: Mapped[list["Book"] | None] = relationship("Book", back_populates="owner")
+    books: Mapped[list["Book"] | None] = relationship(
+        "Book", back_populates="owner", cascade="all, delete"
+    )

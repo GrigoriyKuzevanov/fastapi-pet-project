@@ -6,9 +6,14 @@ from pydantic import BaseModel, EmailStr
 class UserBase(BaseModel):
     username: str
     password: str
-    
+
 
 class UserCreate(UserBase):
+    email: EmailStr
+
+
+class UserUpdate(BaseModel):
+    username: str
     email: EmailStr
 
 
@@ -17,7 +22,7 @@ class UserOut(BaseModel):
     username: str
     email: EmailStr
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -29,6 +34,7 @@ class BookBase(BaseModel):
     publish_date: date | None = None
     description: str
     author_id: int
+    owner_id: int
 
 
 class BookCreate(BookBase):
@@ -38,6 +44,7 @@ class BookCreate(BookBase):
 class BookOut(BookBase):
     id: int
     author_id: int
+    owner_id: int
     created_at: datetime
 
     class Config:

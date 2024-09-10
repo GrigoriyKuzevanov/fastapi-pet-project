@@ -7,6 +7,7 @@ from app.database import Base
 DB_MODEL_CHOICES = {
     "book": models.Book,
     "author": models.Author,
+    "user": models.User,
 }
 
 
@@ -63,3 +64,12 @@ def create_author(session: Session, author: schemas.AuthorCreate):
     session.commit()
     session.refresh(new_author)
     return new_author
+
+
+# crud functions for users router
+def create_user(session: Session, user: schemas.UserCreate):
+    new_user = models.User(**user.model_dump())
+    session.add(new_user)
+    session.commit()
+    session.refresh(new_user)
+    return new_user
