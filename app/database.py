@@ -10,7 +10,9 @@ DB_PORT = settings.db_port
 DB_NAME = settings.db_name
 
 # postgresql://YourUserName:YourPassword@YourHostname:5432/YourDatabaseName"
-SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+SQLALCHEMY_DATABASE_URL = (
+    f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+)
 
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=settings.echo_sql)
