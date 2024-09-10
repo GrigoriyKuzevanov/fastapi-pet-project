@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 
 from app import models, schemas
 from app.database import Base
+from app import utils
+
 
 DB_MODEL_CHOICES = {
     "book": models.Book,
@@ -68,6 +70,9 @@ def create_author(session: Session, author: schemas.AuthorCreate):
 
 # crud functions for users router
 def create_user(session: Session, user: schemas.UserCreate):
+    hashed_password = utils.hash(user.password)
+    user.password = hashed_password
+    
     new_user = models.User(**user.model_dump())
     session.add(new_user)
     session.commit()

@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app import database, models, schemas
 from app.routers import crud
 
+
 router = APIRouter(
     prefix="/users",
     tags=["Users"],
