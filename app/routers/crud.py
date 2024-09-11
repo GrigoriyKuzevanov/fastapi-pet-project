@@ -16,12 +16,13 @@ DB_MODEL_CHOICES = {
 # mutual crud functions for routers
 def read_objects(session: Session, model_type: str):
     stmt = select(DB_MODEL_CHOICES[model_type])
-    db_objects = session.execute(stmt).scalars()
+    db_objects = session.execute(stmt).scalars().all()
     return db_objects
 
 
 def read_object_by_id(session: Session, model_type: str, obj_id: int):
     db_object = session.get(DB_MODEL_CHOICES[model_type], obj_id)
+    print(type(db_object.__class__))
     return db_object
 
 
@@ -72,7 +73,7 @@ def create_author(session: Session, author: schemas.AuthorCreate):
 def create_user(session: Session, user: schemas.UserCreate):
     hashed_password = utils.hash(user.password)
     user.password = hashed_password
-    
+
     new_user = models.User(**user.model_dump())
     session.add(new_user)
     session.commit()

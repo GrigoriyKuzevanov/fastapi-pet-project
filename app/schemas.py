@@ -4,22 +4,20 @@ from pydantic import BaseModel, EmailStr
 
 
 class UserBase(BaseModel):
-    username: str
+    email: EmailStr
     password: str
 
 
 class UserCreate(UserBase):
-    email: EmailStr
+    pass
 
 
 class UserUpdate(BaseModel):
-    username: str
     email: EmailStr
 
 
 class UserOut(BaseModel):
     id: int
-    username: str
     email: EmailStr
     created_at: datetime
 
