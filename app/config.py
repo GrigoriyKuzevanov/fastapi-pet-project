@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     db_port: str
     db_name: str
     echo_sql: bool
+    secret_key: str
+    algorithm: str
+    access_token_expire_minutes: int
 
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=False)
 

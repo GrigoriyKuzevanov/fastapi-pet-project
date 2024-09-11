@@ -1,10 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app import models, schemas
+from app import models, schemas, utils
 from app.database import Base
-from app import utils
-
 
 DB_MODEL_CHOICES = {
     "book": models.Book,
@@ -84,5 +82,5 @@ def create_user(session: Session, user: schemas.UserCreate):
 def get_user_by_email(session: Session, email: str):
     stmt = select(models.User).where(models.User.email == email)
     db_user = session.execute(stmt).scalar_one_or_none()
-    
+
     return db_user

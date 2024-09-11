@@ -12,9 +12,7 @@ class Author(Base):
     __tablename__ = "author"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    fullname: Mapped[str] = mapped_column(
-        String, nullable=False, index=True
-    )
+    fullname: Mapped[str] = mapped_column(String, nullable=False, index=True)
     birth_date: Mapped[date | None] = mapped_column(Date)
     death_date: Mapped[date | None] = mapped_column(Date)
     description: Mapped[str] = mapped_column(String, nullable=False)

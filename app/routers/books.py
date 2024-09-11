@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app import database, schemas
-from app.routers import crud, dependencies
+from app.routers import crud
 
 router = APIRouter(
     prefix="/books",
