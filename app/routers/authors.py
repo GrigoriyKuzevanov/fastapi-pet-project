@@ -45,9 +45,10 @@ def get_author_by_id(author_id: int, session: Session = Depends(database.get_db)
     summary="Create a new author in the db",
 )
 def post_author(
-    author: schemas.AuthorCreate = Depends(dependencies.check_author_exists),
+    author: schemas.AuthorCreate,
     session: Session = Depends(database.get_db),
 ):
+    
     return crud.create_author(session=session, author=author)
 
 

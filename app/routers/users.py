@@ -15,9 +15,7 @@ router = APIRouter(
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.UserOut)
 def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
     # check unique email constraints
-    checking_stmt = select(models.User).where(models.User.email == user.email)
-
-    if db.execute(checking_stmt).all():
+    if crud.get_user_by_email(session=db, email=user.email):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"User with email <{user.email}> already exists!",
@@ -45,7 +43,6 @@ def get_user(user_id: int, db: Session = Depends(database.get_db)):
     return user
 
 
-# TODO добавить обработку ограничений на уникальные username и email
 @router.put(
     "/{user_id}", status_code=status.HTTP_200_OK, response_model=schemas.UserOut
 )

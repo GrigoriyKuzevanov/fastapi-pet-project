@@ -13,7 +13,7 @@ class Author(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     fullname: Mapped[str] = mapped_column(
-        String, nullable=False, unique=True, index=True
+        String, nullable=False, index=True
     )
     birth_date: Mapped[date | None] = mapped_column(Date)
     death_date: Mapped[date | None] = mapped_column(Date)

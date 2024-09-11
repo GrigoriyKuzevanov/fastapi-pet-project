@@ -79,3 +79,10 @@ def create_user(session: Session, user: schemas.UserCreate):
     session.commit()
     session.refresh(new_user)
     return new_user
+
+
+def get_user_by_email(session: Session, email: str):
+    stmt = select(models.User).where(models.User.email == email)
+    db_user = session.execute(stmt).scalar_one_or_none()
+    
+    return db_user
