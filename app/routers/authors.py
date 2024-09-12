@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
-from app import database, schemas
+from app import database, models, oauth2, schemas
 from app.routers import crud
 
 router = APIRouter(
@@ -10,81 +10,65 @@ router = APIRouter(
 )
 
 
-@router.get(
-    "/",
-    response_model=list[schemas.AuthorOut],
-    summary="Get all the authors from the db",
-)
-def get_all_authors(session: Session = Depends(database.get_db)):
-    db_authors = crud.read_objects(session=session, model_type="author")
-    return db_authors
+@router.get("/", response_model=list[schemas.AuthorOut])
+def get_authors(session: Session = Depends(database.get_db)):
+    return crud.read_all_authors(session=session)
 
 
-@router.get(
-    "/{author_id}",
-    response_model=schemas.AuthorOut,
-    summary="Get the author from the db by given id",
-)
-def get_author_by_id(author_id: int, session: Session = Depends(database.get_db)):
-    db_author = crud.read_object_by_id(
-        session=session, model_type="author", obj_id=author_id
-    )
+@router.get("/{author_id}", response_model=schemas.AuthorOut)
+def get_author(author_id: int, session: Session = Depends(database.get_db)):
+    db_author = crud.read_author_by_id(session=session, author_id=author_id)
+
     if not db_author:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Author with id: {author_id} is not found",
+            detail=f"Author with id: {author_id} does not exist",
         )
 
     return db_author
 
 
-@router.post(
-    "/",
-    status_code=status.HTTP_201_CREATED,
-    response_model=schemas.AuthorOut,
-    summary="Create a new author in the db",
-)
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.AuthorOut)
 def post_author(
     author: schemas.AuthorCreate,
     session: Session = Depends(database.get_db),
+    current_user: models.User = Depends(oauth2.get_current_user),
 ):
-
     return crud.create_author(session=session, author=author)
 
 
-@router.put(
-    "/{author_id}",
-    response_model=schemas.AuthorOut,
-    summary="Update an author from the db by given id",
-)
+@router.put("/{author_id}", response_model=schemas.AuthorOut)
 def update_author(
     author_id: int,
-    author: schemas.AuthorCreate,
+    author: schemas.AuthorUpdate,
     session: Session = Depends(database.get_db),
+    current_user: models.User = Depends(oauth2.get_current_user),
 ):
-    db_author = crud.update_object_by_id(
-        session=session, schema=author, obj_id=author_id, model_type="author"
-    )
+    db_author = crud.read_author_by_id(session=session, author_id=author_id)
+
     if not db_author:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Author with id: {author_id} is not found",
+            detail=f"Author with id: {author_id} does not exist",
         )
 
-    return db_author
+    return crud.update_author(session=session, db_author=db_author, update_data=author)
 
 
-@router.delete(
-    "/{author_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-    summary="Delete an author from the db by given id",
-)
-def delete_author(author_id: int, session: Session = Depends(database.get_db)):
-    db_author = crud.delete_object_by_id(
-        session=session, model_type="author", obj_id=author_id
-    )
-    if db_author is None:
+@router.delete("/{author_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_author(
+    author_id: int,
+    session: Session = Depends(database.get_db),
+    current_user: models.User = Depends(oauth2.get_current_user),
+):
+    db_author = crud.read_author_by_id(session=session, author_id=author_id)
+
+    if not db_author:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Author with id: {author_id} is not found",
+            detail=f"Author with id: {author_id} does not exist",
         )
+
+    crud.delete_author(session=session, author=db_author)
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

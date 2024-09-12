@@ -31,10 +31,13 @@ class BookBase(BaseModel):
     language: str
     publish_date: date | None = None
     description: str
-    author_id: int
 
 
 class BookCreate(BookBase):
+    author_id: int
+
+
+class BookUpdate(BookBase):
     pass
 
 
@@ -56,6 +59,10 @@ class AuthorBase(BaseModel):
 
 
 class AuthorCreate(AuthorBase):
+    pass
+
+
+class AuthorUpdate(AuthorBase):
     pass
 
 

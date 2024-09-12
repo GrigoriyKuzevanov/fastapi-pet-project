@@ -19,7 +19,7 @@ def login(
     user_credentials: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
 ):
-    user = crud.get_user_by_email(session=db, email=user_credentials.username)
+    user = crud.read_user_by_email(session=db, email=user_credentials.username)
 
     if not user:
         raise HTTPException(

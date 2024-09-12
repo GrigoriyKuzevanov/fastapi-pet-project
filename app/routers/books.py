@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 from app import database, models, oauth2, schemas
@@ -10,69 +10,61 @@ router = APIRouter(
 )
 
 
-@router.get(
-    "/", response_model=list[schemas.BookOut], summary="Get all the books from the db"
-)
+@router.get("/", response_model=list[schemas.BookOut])
 def get_books(session: Session = Depends(database.get_db)):
-    books = crud.read_objects(session=session, model_type="book")
-    return books
+    return crud.read_all_books(session=session)
 
 
-@router.get(
-    "/{book_id}",
-    response_model=schemas.BookOut,
-    summary="Get the book from the db by given id",
-)
+@router.get("/{book_id}", response_model=schemas.BookOut)
 def get_book(book_id: int, session: Session = Depends(database.get_db)):
-    db_book = crud.read_object_by_id(session=session, obj_id=book_id, model_type="book")
-    if db_book is None:
+    db_book = crud.read_book_by_id(session=session, book_id=book_id)
+
+    if not db_book:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Book with id: {book_id} is not found",
+            detail=f"Book with id: {book_id} does not exist",
         )
 
     return db_book
 
 
-@router.put(
-    "/{book_id}",
-    response_model=schemas.BookOut,
-    summary="Update the book from the db by given id",
-)
+@router.put("/{book_id}", response_model=schemas.BookOut)
 def update_book(
     book_id: int,
-    book: schemas.BookCreate,
+    book: schemas.BookUpdate,
     session: Session = Depends(database.get_db),
+    current_user: models.User = Depends(oauth2.get_current_user),
 ):
-    db_book = crud.update_object_by_id(
-        session=session, schema=book, obj_id=book_id, model_type="book"
-    )
-    if db_book is None:
+    db_book = crud.read_book_by_id(session=session, book_id=book_id)
+
+    if not db_book:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Book with id: {book_id} is not found",
+            detail=f"Book with id: {book_id} does not exist",
         )
 
-    return db_book
+    if db_book.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to perfrom requested action",
+        )
+
+    return crud.update_book(session=session, db_book=db_book, update_data=book)
 
 
-@router.post(
-    "/",
-    status_code=status.HTTP_201_CREATED,
-    response_model=schemas.BookOut,
-    summary="Create a new book in the db by given author id",
-)
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.BookOut)
 def post_book(
     book: schemas.BookCreate,
     session: Session = Depends(database.get_db),
     current_user: models.User = Depends(oauth2.get_current_user),
 ):
     # check author exists
-    db_author = session.get(models.Author, book.author_id)
+    db_author = crud.read_author_by_id(session=session, author_id=book.author_id)
+
     if not db_author:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Author with id: {book.author_id} is not found",
+            detail=f"Author with id: {book.author_id} does not exist",
         )
 
     db_book = crud.create_book(session=session, book=book, owner_id=current_user.id)
@@ -80,17 +72,26 @@ def post_book(
     return db_book
 
 
-@router.delete(
-    "/{book_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-    summary="Delete the book from the db by given id",
-)
-def delete_book(book_id: int, session: Session = Depends(database.get_db)):
-    db_book = crud.delete_object_by_id(
-        session=session, obj_id=book_id, model_type="book"
-    )
-    if db_book is None:
+@router.delete("/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_book(
+    book_id: int,
+    session: Session = Depends(database.get_db),
+    current_user: models.User = Depends(oauth2.get_current_user),
+):
+    db_book = crud.read_book_by_id(session=session, book_id=book_id)
+
+    if not db_book:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Book with id: {book_id} is not found",
+            detail=f"Book with id: {book_id} does not exist",
         )
+
+    if db_book.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to perfrom requested action",
+        )
+
+    crud.delete_book(session=session, book=db_book)
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

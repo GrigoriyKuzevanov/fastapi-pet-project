@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from app import database, models, schemas
 from app.config import settings
+from app.routers import crud
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -49,7 +50,7 @@ def verify_access_token(token: str, credentials_exception: Exception):
 
 
 def get_current_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)
+    token: str = Depends(oauth2_scheme), session: Session = Depends(database.get_db)
 ):
     credetials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -58,7 +59,6 @@ def get_current_user(
     )
     token = verify_access_token(token=token, credentials_exception=credetials_exception)
 
-    stmt = select(models.User).where(models.User.email == token.user_email)
-    user = db.execute(stmt).scalar_one_or_none()
+    user = crud.read_user_by_email(session=session, email=token.user_email)
 
     return user
