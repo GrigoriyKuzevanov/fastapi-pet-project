@@ -32,7 +32,6 @@ class BookBase(BaseModel):
     publish_date: date | None = None
     description: str
     author_id: int
-    owner_id: int
 
 
 class BookCreate(BookBase):
@@ -75,4 +74,4 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    user_id: str | None = None
+    user_email: str | None = None

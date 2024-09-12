@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app import database, schemas
+from app import database, models, oauth2, schemas
 from app.routers import crud
 
 router = APIRouter(
@@ -65,13 +65,17 @@ def update_book(
 def post_book(
     book: schemas.BookCreate,
     session: Session = Depends(database.get_db),
+    current_user: models.User = Depends(oauth2.get_current_user),
 ):
-    db_book = crud.create_book(session=session, book=book)
-    if db_book is None:
+    # check author exists
+    db_author = session.get(models.Author, book.author_id)
+    if not db_author:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Author with id: {book.author_id} is not found",
         )
+
+    db_book = crud.create_book(session=session, book=book, owner_id=current_user.id)
 
     return db_book
 

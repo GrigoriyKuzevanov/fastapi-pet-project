@@ -3,11 +3,11 @@ from datetime import datetime, timedelta, timezone
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app import database, models, schemas
 from app.config import settings
-
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -41,7 +41,7 @@ def verify_access_token(token: str, credentials_exception: Exception):
         if user_email is None:
             raise credentials_exception
 
-        token_data = schemas.TokenData(user_id=str(id))
+        token_data = schemas.TokenData(user_email=user_email)
     except jwt.PyJWTError:
         raise credentials_exception
 
@@ -57,6 +57,8 @@ def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     token = verify_access_token(token=token, credentials_exception=credetials_exception)
-    user = db.get(models.User, token.id)
+
+    stmt = select(models.User).where(models.User.email == token.user_email)
+    user = db.execute(stmt).scalar_one_or_none()
 
     return user
