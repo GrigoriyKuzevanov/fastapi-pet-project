@@ -1,98 +1,106 @@
+from typing import Generator
+
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
+from sqlalchemy import create_engine, select
+from sqlalchemy.orm import Session, sessionmaker
 
-from app.database import Base
+from app import models
+from app.database import SQLALCHEMY_DATABASE_URL, Base, get_db
 from app.main import app
-from app.routers.dependencies import get_db
+from app.oauth2 import create_access_token
 
-# import random
-
-
-TEST_SQLITE_DATABASE_URL = "sqlite:///./test_db.db"
-
-engine = create_engine(
-    TEST_SQLITE_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
-)
+TEST_SQLITE_DATABASE_URL = SQLALCHEMY_DATABASE_URL + "_test"
 
 
-TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+engine = create_engine(TEST_SQLITE_DATABASE_URL)
 
-Base.metadata.create_all(bind=engine)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 @pytest.fixture(scope="function")
-def db_session():
-    """
-    Create a new db session with a rollback
-    at the end of the test.
-    """
-    connection  = engine.connect()
-    transaction = connection.begin()
-    session = TestSessionLocal(bind=connection)
-    yield session
-    session.close()
-    transaction.rollback()
-    connection.close()
+def session() -> Generator[Session, None, None]:
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    with TestingSessionLocal() as testing_session:
+        yield testing_session
 
 
 @pytest.fixture(scope="function")
-def test_client(db_session):
-    """
-    Create a test client that uses the override_get_db
-    fixture to return a session.
-    """
-
+def client(session: Session) -> Generator[TestClient, None, None]:
     def override_get_db():
-        try:
-            yield db_session
-        finally:
-            db_session.close()
+        with session as s:
+            yield s
 
     app.dependency_overrides[get_db] = override_get_db
-    with TestClient(app) as test_client:
-        yield test_client
+    yield TestClient(app)
 
 
-# @pytest.fixture()
-# def get_random_id():
-#     return random.randint(1, 1000)
-
-
-@pytest.fixture()
-def post_author():
-    test_author = {
-        "fullname": "Test fullname",
-        "first_name": "Test first name",
-        "last_name": "Test last name",
-        "patronymic": "Test patronymic",
-        "birth_date": "1800-01-01",
-        "death_date": "1850-12-12",
+@pytest.fixture
+def test_user(client: TestClient) -> dict:
+    user_data = {
+        "email": "test_user@mail.com",
+        "password": "test_secret",
     }
-    return test_author
+
+    response = client.post("/users/", json=user_data)
+
+    assert response.status_code == 201
+
+    new_user = response.json()
+    new_user["password"] = user_data.get("password")
+
+    return new_user
 
 
-@pytest.fixture()
-def update_author():
-    test_update_author = {
-        "fullname": "Test update fullname",
-        "first_name": "Test update first name",
-        "last_name": "Test update last name",
-        "patronymic": "Test update patronymic",
-        "birth_date": "1900-01-01",
-        "death_date": "1950-12-12",
+@pytest.fixture
+def token(test_user: dict) -> str:
+    data = {
+        "user_id": test_user.get("id"),
     }
-    return test_update_author
+    return create_access_token(data=data)
 
 
-@pytest.fixture()
-def partically_update_author():
-    test_update_author = {
-        "fullname": "Test patch fullname",
-        "birth_date": "1700-01-01",
+@pytest.fixture
+def authorized_client(client: TestClient, token: str) -> TestClient:
+    client.headers = {
+        **client.headers,
+        "Authorization": f"Bearer {token}",
     }
-    return test_update_author
+
+    return client
+
+
+@pytest.fixture
+def test_authors(session: Session) -> list:
+    authors_data = [
+        {
+            "fullname": "test_name1",
+            "birth_date": "1901-01-01",
+            "death_date": "2000-12-12",
+            "description": "test_description1",
+        },
+        {
+            "fullname": "test_name2",
+            "birth_date": "1902-02-02",
+            "death_date": "2002-11-11",
+            "description": "test_description2",
+        },
+        {
+            "fullname": "test_name3",
+            "birth_date": "1903-03-03",
+            "death_date": "2003-10-10",
+            "description": "test_description3",
+        },
+    ]
+
+    authors_models = [models.Author(**author_data) for author_data in authors_data]
+
+    session.add_all(authors_models)
+    session.commit()
+
+    stmt = select(models.Author)
+    authors = session.scalars(stmt).all()
+
+    return authors

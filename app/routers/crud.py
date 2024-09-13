@@ -4,47 +4,6 @@ from sqlalchemy.orm import Session
 from app import models, schemas, utils
 from app.database import Base
 
-# DB_MODEL_CHOICES = {
-#     "book": models.Book,
-#     "author": models.Author,
-#     "user": models.User,
-# }
-
-
-# # mutual crud functions for routers
-# def read_objects(session: Session, model_type: str):
-#     stmt = select(DB_MODEL_CHOICES[model_type])
-#     db_objects = session.execute(stmt).scalars().all()
-#     return db_objects
-
-
-# def read_object_by_id(session: Session, model_type: str, obj_id: int):
-#     db_object = session.get(DB_MODEL_CHOICES[model_type], obj_id)
-#     print(type(db_object.__class__))
-#     return db_object
-
-
-# def delete_object_by_id(session: Session, model_type: str, obj_id: int):
-#     db_object = session.get(DB_MODEL_CHOICES[model_type], obj_id)
-#     if not db_object:
-#         return None
-#     session.delete(db_object)
-#     session.commit()
-#     return db_object
-
-
-# def update_object_by_id(
-#     session: Session, schema: schemas.BaseModel, obj_id: int, model_type: str
-# ):
-#     db_object = session.get(DB_MODEL_CHOICES[model_type], obj_id)
-#     if not db_object:
-#         return None
-#     for key, value in schema.model_dump(exclude_unset=True).items():
-#         setattr(db_object, key, value)
-#     session.commit()
-#     session.refresh(db_object)
-#     return db_object
-
 
 # crud functions for books router
 def create_book(
