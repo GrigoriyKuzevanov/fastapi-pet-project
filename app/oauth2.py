@@ -37,12 +37,12 @@ def verify_access_token(token: str, credentials_exception: Exception):
                 ALGORITHM,
             ],
         )
-        user_email: str = payload.get("user_email")
+        user_id: str = payload.get("user_id")
 
-        if user_email is None:
+        if user_id is None:
             raise credentials_exception
 
-        token_data = schemas.TokenData(user_email=user_email)
+        token_data = schemas.TokenData(user_id=str(user_id))
     except jwt.PyJWTError:
         raise credentials_exception
 
@@ -59,6 +59,12 @@ def get_current_user(
     )
     token = verify_access_token(token=token, credentials_exception=credetials_exception)
 
-    user = crud.read_user_by_email(session=session, email=token.user_email)
+    user = crud.read_user_by_id(session=session, user_id=token.user_id)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with id: {token.user_id} does not exist",
+        )
 
     return user

@@ -153,10 +153,17 @@ def read_user_by_id(session: Session, user_id: int) -> models.User | None:
     return session.get(models.User, user_id)
 
 
-# def update_user(session: Session, db_user: models.User, update_data: schemas.UserUpdate) -> models.User:
-#     for key, value in update_data.model_dump(exclude_unset=True).items():
-#         setattr(db_user, key, value)
-#     session.commit()
-#     session.refresh(db_user)
+def update_user(
+    session: Session, db_user: models.User, update_data: schemas.UserUpdate
+) -> models.User:
+    for key, value in update_data.model_dump(exclude_unset=True).items():
+        setattr(db_user, key, value)
+    session.commit()
+    session.refresh(db_user)
 
-#     return db_user
+    return db_user
+
+
+def delete_user(session: Session, user: models.User) -> None:
+    session.delete(user)
+    session.commit()
