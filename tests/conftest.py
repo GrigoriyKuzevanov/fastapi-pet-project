@@ -104,3 +104,46 @@ def test_authors(session: Session) -> list:
     authors = session.scalars(stmt).all()
 
     return authors
+
+
+@pytest.fixture
+def test_books(session: Session, test_user: dict, test_authors: list[models.Author]) -> list:
+    books_data = [
+        {
+            "title": "test_title1",
+            "genre": "test_genre1",
+            "language": "test_language1",
+            "publish_date": "1800-01-01",
+            "description": "test_description1",
+            "author_id": 1,
+            "owner_id": test_user.get("id")
+        },
+        {
+            "title": "test_title2",
+            "genre": "test_genre2",
+            "language": "test_language2",
+            "publish_date": "1802-02-02",
+            "description": "test_description2",
+            "author_id": 2,
+            "owner_id": test_user.get("id")
+        },
+        {
+            "title": "test_title3",
+            "genre": "test_genre3",
+            "language": "test_language3",
+            "publish_date": "1803-03-03",
+            "description": "test_description3",
+            "author_id": 3,
+            "owner_id": test_user.get("id")
+        },
+    ]
+
+    books_models = [models.Book(**book) for book in books_data]
+    
+    session.add_all(books_models)
+    session.commit()
+    
+    stmt = select(models.Book)
+    books = session.scalars(stmt).all()
+    
+    return books

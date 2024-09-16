@@ -6,6 +6,9 @@ from app import models, schemas
 
 def test_get_authors(client: TestClient, test_authors: list[models.Author]) -> None:
     response = client.get("/authors/")
+    
+    assert response.status_code == 200
+    
     authors = [schemas.AuthorOut(**author) for author in response.json()]
 
     assert len(authors) == len(test_authors)
@@ -16,7 +19,7 @@ def test_get_authors(client: TestClient, test_authors: list[models.Author]) -> N
         assert author.death_date == test_authors[index].death_date
         assert author.description == test_authors[index].description
 
-    assert response.status_code == 200
+    
 
 
 @pytest.mark.parametrize("author_id", [1, 2, 3])
@@ -24,9 +27,10 @@ def test_get_author(
     client: TestClient, test_authors: list[models.Author], author_id: int
 ) -> None:
     response = client.get(f"/authors/{author_id}")
-    author = schemas.AuthorOut(**response.json())
-
+    
     assert response.status_code == 200
+    
+    author = schemas.AuthorOut(**response.json())
 
     assert author.fullname == test_authors[author_id - 1].fullname
     assert author.birth_date == test_authors[author_id - 1].birth_date
