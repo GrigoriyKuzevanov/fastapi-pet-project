@@ -89,3 +89,97 @@ def test_post_author(
     assert created_author.birth_date == author_to_post.birth_date
     assert created_author.death_date == author_to_post.death_date
     assert created_author.description == author_to_post.description
+
+
+def test_post_author_unauthorized_user(client: TestClient):
+    author_data = {
+        "fullname": "test_fullname",
+        "birth_date": "test_birth_date",
+        "death_date": "test_death_date",
+        "description": "test_description",
+    }
+
+    response = client.post("/authors/", json=author_data)
+
+    assert response.status_code == 401
+
+
+def test_update_author(
+    authorized_client: TestClient, test_authors: list[models.Author]
+) -> None:
+    update_data = {
+        "fullname": "updated_test_fullname",
+        "birth_date": test_authors[0].birth_date.strftime("%Y-%m-%d"),
+        "death_date": test_authors[0].death_date.strftime("%Y-%m-%d"),
+        "description": test_authors[0].description,
+    }
+
+    response = authorized_client.put(f"/authors/{test_authors[0].id}", json=update_data)
+
+    assert response.status_code == 200
+
+    updated_author = schemas.AuthorOut(**response.json())
+
+    assert updated_author.fullname == update_data.get("fullname")
+    assert updated_author.birth_date == test_authors[0].birth_date
+    assert updated_author.death_date == test_authors[0].death_date
+    assert updated_author.description == test_authors[0].description
+    assert updated_author.id == test_authors[0].id
+
+
+def test_update_author_unauthorized_user(
+    client: TestClient, test_authors: list[models.Author]
+) -> None:
+    update_data = {
+        "fullname": "updated_test_fullname",
+        "birth_date": "1500-01-02",
+        "death_date": "1550-02-01",
+        "description": test_authors[0].description,
+    }
+
+    response = client.put(f"/authors/{test_authors[0].id}", json=update_data)
+
+    assert response.status_code == 401
+
+
+def test_update_author_not_exists(authorized_client: TestClient) -> None:
+    update_data = {
+        "fullname": "updated_test_fullname",
+        "birth_date": "1500-01-02",
+        "death_date": "1550-02-01",
+        "description": "updated_test_description",
+    }
+    author_id = 1111
+    response = authorized_client.put(f"/authors/{author_id}", json=update_data)
+
+    assert response.status_code == 404
+    assert (
+        response.json().get("detail") == f"Author with id: {author_id} does not exist"
+    )
+
+
+def test_delete_author(
+    authorized_client: TestClient, test_authors: list[models.Author]
+) -> None:
+    for i in range(1, len(test_authors) + 1):
+        response = authorized_client.delete(f"/authors/{i}")
+
+        assert response.status_code == 204
+
+
+def test_delete_author_unauthorized_user(
+    client: TestClient, test_authors: list[models.Author]
+) -> None:
+    response = client.delete("/authors/1")
+
+    assert response.status_code == 401
+
+
+def test_delete_author_not_exists(authorized_client: TestClient) -> None:
+    author_id = 1111
+    response = authorized_client.delete(f"/authors/{author_id}")
+
+    assert response.status_code == 404
+    assert (
+        response.json().get("detail") == f"Author with id: {author_id} does not exist"
+    )
