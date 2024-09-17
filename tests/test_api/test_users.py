@@ -75,3 +75,54 @@ def test_create_user_email_exists(client: TestClient, test_user: dict) -> None:
         response.json().get("detail")
         == f"User with email: {existing_email} already exists!"
     )
+
+
+def test_update_user_me(authorized_client: TestClient, test_user: dict) -> None:
+    update_data = {
+        "email": "updated_email@mail.com",
+    }
+
+    response = authorized_client.put("/users/me", json=update_data)
+
+    assert response.status_code == 200
+
+    user = schemas.UserOut(**response.json())
+
+    assert user.id == test_user.get("id")
+    assert user.email == update_data.get("email")
+    assert user.created_at == users_utils.string_to_datetime(
+        test_user.get("created_at")
+    )
+
+
+def test_update_user_me_unauthorized_user(client: TestClient) -> None:
+    update_data = {
+        "email": "updated_email@mail.com",
+    }
+
+    response = client.put("/users/me", json=update_data)
+
+    assert response.status_code == 401
+
+
+def test_update_user_me_with_email_exists(
+    authorized_client: TestClient, test_user2: dict
+) -> None:
+    existing_email = test_user2.get("email")
+    update_data = {
+        "email": existing_email,
+    }
+
+    response = authorized_client.put("/users/me", json=update_data)
+
+    assert response.status_code == 409
+    assert (
+        response.json().get("detail")
+        == f"User with email: {existing_email} already exists!"
+    )
+
+
+def delete_user_me(authorized_client: TestClient, test_user: dict) -> None:
+    response = authorized_client.delete("/users/me")
+
+    assert response.status_code == 204

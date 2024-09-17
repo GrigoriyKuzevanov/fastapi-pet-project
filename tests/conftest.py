@@ -55,6 +55,23 @@ def test_user(client: TestClient) -> dict:
 
 
 @pytest.fixture
+def test_user2(client: TestClient) -> dict:
+    user_data = {
+        "email": "test_user2@mail.com",
+        "password": "test_secret",
+    }
+
+    response = client.post("/users/", json=user_data)
+
+    assert response.status_code == 201
+
+    new_user = response.json()
+    new_user["password"] = user_data.get("password")
+
+    return new_user
+
+
+@pytest.fixture
 def token(test_user: dict) -> str:
     data = {
         "user_id": test_user.get("id"),
