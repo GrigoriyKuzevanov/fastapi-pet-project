@@ -135,3 +135,86 @@ def test_create_book_author_not_exists(authorized_client: TestClient) -> None:
     assert (
         response.json().get("detail") == f"Author with id: {author_id} does not exist"
     )
+
+
+def test_update_book(
+    authorized_client: TestClient, test_books: list[models.Book]
+) -> None:
+    update_data = {
+        "title": "updated_test_title",
+        "genre": "updated_test_genre",
+        "language": test_books[0].language,
+        "publish_date": test_books[0].publish_date.strftime("%Y-%m-%d"),
+        "description": "updated_test_title",
+    }
+
+    response = authorized_client.put(f"/books/{test_books[0].id}", json=update_data)
+
+    assert response.status_code == 200
+
+    updated_book = schemas.BookOut(**response.json())
+
+    assert updated_book.title == update_data.get("title")
+    assert updated_book.genre == update_data.get("genre")
+    assert updated_book.language == update_data.get("language")
+    assert updated_book.publish_date == test_books[0].publish_date
+    assert updated_book.description == update_data.get("description")
+    assert updated_book.author_id == test_books[0].author_id
+
+
+def test_update_book_unauthorized_user(
+    client: TestClient, test_books: list[models.Book]
+) -> None:
+    update_data = {
+        "title": "updated_test_title",
+        "genre": "updated_test_genre",
+        "language": test_books[0].language,
+        "publish_date": test_books[0].publish_date.strftime("%Y-%m-%d"),
+        "description": "updated_test_title",
+    }
+
+    response = client.put(f"/books/{test_books[0].id}", json=update_data)
+
+    assert response.status_code == 401
+
+
+def test_update_book_not_exists(authorized_client: TestClient) -> None:
+    update_data = {
+        "title": "updated_test_title",
+        "genre": "updated_test_genre",
+        "language": "updated_language",
+        "publish_date": "1800-01-01",
+        "description": "updated_test_title",
+    }
+
+    book_id = 1111
+
+    response = authorized_client.put(f"/books/{book_id}", json=update_data)
+
+    assert response.status_code == 404
+    assert response.json().get("detail") == f"Book with id: {book_id} does not exist"
+
+
+def test_delete_book(
+    authorized_client: TestClient, test_books: list[models.Book]
+) -> None:
+    for i in range(1, len(test_books) + 1):
+        response = authorized_client.delete(f"/books/{i}")
+
+        assert response.status_code == 204
+
+
+def test_delete_book_unauthorized_user(
+    client: TestClient, test_books: list[models.Book]
+) -> None:
+    response = client.delete(f"/books/{test_books[0].id}")
+
+    assert response.status_code == 401
+
+
+def test_delete_book_not_exists(authorized_client: TestClient) -> None:
+    book_id = 1111
+    response = authorized_client.delete(f"/books/{book_id}")
+
+    assert response.status_code == 404
+    assert response.json().get("detail") == f"Book with id: {book_id} does not exist"
