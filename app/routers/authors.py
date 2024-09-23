@@ -11,8 +11,10 @@ router = APIRouter(
 
 
 @router.get("/", response_model=list[schemas.AuthorOut])
-def get_authors(session: Session = Depends(database.get_db)):
-    return crud.read_all_authors(session=session)
+def get_authors(
+    limit: int = 10, skip: int = 0, session: Session = Depends(database.get_db)
+):
+    return crud.read_all_authors(session=session, limit=limit, skip=skip)
 
 
 @router.get("/{author_id}", response_model=schemas.AuthorOut)

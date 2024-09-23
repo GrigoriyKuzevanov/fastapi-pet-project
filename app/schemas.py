@@ -69,7 +69,7 @@ class AuthorUpdate(AuthorBase):
 class AuthorOut(AuthorBase):
     id: int
     created_at: datetime
-    books: list[BookOut] = []
+    # books: list[BookOut] = []
 
     class Config:
         from_attributes = True

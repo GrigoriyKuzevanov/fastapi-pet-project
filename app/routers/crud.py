@@ -17,8 +17,8 @@ def create_book(
     return db_book
 
 
-def read_all_books(session: Session) -> list:
-    stmt = select(models.Book)
+def read_all_books(session: Session, limit: int, skip: int) -> list:
+    stmt = select(models.Book).limit(limit).offset(skip)
     db_books = session.scalars(stmt).all()
 
     return db_books
@@ -54,8 +54,8 @@ def create_author(session: Session, author: schemas.AuthorCreate) -> models.Auth
     return db_author
 
 
-def read_all_authors(session: Session) -> list:
-    stmt = select(models.Author)
+def read_all_authors(session: Session, limit: int, skip: int) -> list:
+    stmt = select(models.Author).limit(limit).offset(skip)
     db_authors = session.scalars(stmt).all()
 
     return db_authors
@@ -101,8 +101,8 @@ def read_user_by_email(session: Session, email: str) -> models.User | None:
     return db_user
 
 
-def read_all_users(session: Session) -> list:
-    stmt = select(models.User)
+def read_all_users(session: Session, limit: int, skip: int) -> list:
+    stmt = select(models.User).limit(limit).offset(skip)
     db_users = session.scalars(stmt).all()
 
     return db_users

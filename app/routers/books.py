@@ -11,8 +11,10 @@ router = APIRouter(
 
 
 @router.get("/", response_model=list[schemas.BookOut])
-def get_books(session: Session = Depends(database.get_db)):
-    return crud.read_all_books(session=session)
+def get_books(
+    limit: int = 10, skip: int = 0, session: Session = Depends(database.get_db)
+):
+    return crud.read_all_books(session=session, limit=limit, skip=skip)
 
 
 @router.get("/{book_id}", response_model=schemas.BookOut)

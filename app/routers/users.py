@@ -24,8 +24,10 @@ def create_user(user: schemas.UserCreate, session: Session = Depends(database.ge
 
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=list[schemas.UserOut])
-def get_users(session: Session = Depends(database.get_db)):
-    return crud.read_all_users(session=session)
+def get_users(
+    limit: int = 10, skip: int = 0, session: Session = Depends(database.get_db)
+):
+    return crud.read_all_users(session=session, limit=limit, skip=skip)
 
 
 @router.get(
