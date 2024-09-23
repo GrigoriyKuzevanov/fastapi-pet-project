@@ -6,14 +6,12 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from app import models
-from app.database import SQLALCHEMY_DATABASE_URL, Base, get_db
+from app.config import settings
+from app.database import Base, get_db
 from app.main import app
 from app.oauth2 import create_access_token
 
-TEST_SQLITE_DATABASE_URL = SQLALCHEMY_DATABASE_URL + "_test"
-
-
-engine = create_engine(TEST_SQLITE_DATABASE_URL)
+engine = create_engine(settings.test_postgres_url.unicode_string())
 
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -124,7 +122,9 @@ def test_authors(session: Session) -> list:
 
 
 @pytest.fixture
-def test_books(session: Session, test_user: dict, test_authors: list[models.Author]) -> list:
+def test_books(
+    session: Session, test_user: dict, test_authors: list[models.Author]
+) -> list:
     books_data = [
         {
             "title": "test_title1",
@@ -133,7 +133,7 @@ def test_books(session: Session, test_user: dict, test_authors: list[models.Auth
             "publish_date": "1800-01-01",
             "description": "test_description1",
             "author_id": 1,
-            "owner_id": test_user.get("id")
+            "owner_id": test_user.get("id"),
         },
         {
             "title": "test_title2",
@@ -142,7 +142,7 @@ def test_books(session: Session, test_user: dict, test_authors: list[models.Auth
             "publish_date": "1802-02-02",
             "description": "test_description2",
             "author_id": 2,
-            "owner_id": test_user.get("id")
+            "owner_id": test_user.get("id"),
         },
         {
             "title": "test_title3",
@@ -151,16 +151,16 @@ def test_books(session: Session, test_user: dict, test_authors: list[models.Auth
             "publish_date": "1803-03-03",
             "description": "test_description3",
             "author_id": 3,
-            "owner_id": test_user.get("id")
+            "owner_id": test_user.get("id"),
         },
     ]
 
     books_models = [models.Book(**book) for book in books_data]
-    
+
     session.add_all(books_models)
     session.commit()
-    
+
     stmt = select(models.Book)
     books = session.scalars(stmt).all()
-    
+
     return books

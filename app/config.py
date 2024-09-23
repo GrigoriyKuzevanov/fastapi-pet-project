@@ -32,6 +32,24 @@ class Settings(BaseSettings):
             path=self.db_name,
         )
 
+    test_db_user: str
+    test_db_password: str
+    test_db_host: str
+    test_db_port: int
+    test_db_name: str
+
+    @computed_field
+    @property
+    def test_postgres_url(self) -> PostgresDsn:
+        return MultiHostUrl.build(
+            scheme="postgresql",
+            username=self.test_db_user,
+            password=self.test_db_password,
+            host=self.test_db_host,
+            port=self.test_db_port,
+            path=self.test_db_name,
+        )
+
     secret_key: str
     algorithm: str
     access_token_expire_minutes: int
