@@ -9,7 +9,16 @@ from app.config import settings
 # Base.metadata.create_all(bind=engine)
 
 
-app = FastAPI()
+app = FastAPI(
+    title=settings.app_name,
+    description=settings.app_description,
+    version=settings.app_version,
+    contact={
+        "name": settings.contact_name,
+        "email": settings.contact_email,
+        "url": settings.contact_url,
+    },
+)
 
 
 if settings.cors_origins:
@@ -18,7 +27,7 @@ if settings.cors_origins:
         allow_origins=settings.cors_origins,
         allow_credentials=True,
         allow_methods=["*"],
-        allow_headers=["*"]
+        allow_headers=["*"],
     )
 
 print(settings.cors_origins)

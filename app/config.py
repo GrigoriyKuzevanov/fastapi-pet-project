@@ -13,6 +13,15 @@ def parse_cors_origins(variable: str) -> list[str]:
 
 
 class Settings(BaseSettings):
+    # app settings
+    app_name: str = "FastAPI project"
+    app_description: str | None = None
+    app_version: str | None = None
+    contact_name: str | None = None
+    contact_email: str | None = None
+    contact_url: str | None = None
+
+    # main postgres db settings
     db_user: str
     db_password: str
     db_host: str
@@ -32,6 +41,7 @@ class Settings(BaseSettings):
             path=self.db_name,
         )
 
+    # test postgres db settings
     test_db_user: str
     test_db_password: str
     test_db_host: str
@@ -50,9 +60,12 @@ class Settings(BaseSettings):
             path=self.test_db_name,
         )
 
+    # crypt settings
     secret_key: str
     algorithm: str
     access_token_expire_minutes: int
+
+    # cors settings
     cors_origins: Annotated[str | list, BeforeValidator(parse_cors_origins)] = []
 
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=False)
