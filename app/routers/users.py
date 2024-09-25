@@ -71,3 +71,22 @@ def delete_user_me(
     crud.delete_user(session=session, user=current_user)
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_user(
+    user_id: int,
+    session: Session = Depends(database.get_db),
+    current_admin: models.User = Depends(oauth2.get_current_admin),
+):
+    db_user = crud.read_user_by_id(session=session, user_id=user_id)
+
+    if not db_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with id: {user_id} does not exist",
+        )
+
+    crud.delete_user(session=session, user=db_user)
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
