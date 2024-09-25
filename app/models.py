@@ -58,6 +58,7 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
+    is_admin: Mapped[bool] = mapped_column(nullable=False, default=False)
 
     books: Mapped[list["Book"] | None] = relationship(
         "Book", back_populates="owner", cascade="all, delete"

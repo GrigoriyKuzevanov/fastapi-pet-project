@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     contact_email: str | None = None
     contact_url: str | None = None
 
+    # first admin settings
+    admin_email: str
+    admin_password: str
+
     # main postgres db settings
     db_user: str
     db_password: str
