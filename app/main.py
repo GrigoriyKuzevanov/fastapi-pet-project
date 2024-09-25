@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.database import engine
+from app.core.database import engine
 from app.models import Base
 from app.routers import authors, books, login, users
-from app.config import settings
+from app.core.config import settings
 
 # Base.metadata.create_all(bind=engine)
 

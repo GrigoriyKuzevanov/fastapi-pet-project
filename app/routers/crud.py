@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app import models, schemas, utils
-from app.database import Base
+from app.core.database import Base
 
 
 # crud functions for books router

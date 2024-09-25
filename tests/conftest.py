@@ -6,8 +6,8 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from app import models
-from app.config import settings
-from app.database import Base, get_db
+from app.core.config import settings
+from app.core.database import Base, get_db
 from app.main import app
 from app.oauth2 import create_access_token
 
