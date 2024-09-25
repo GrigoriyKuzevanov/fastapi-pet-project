@@ -19,7 +19,24 @@ Get into project work directory and create a `.env` file:
 cd fastapi-sqlalchemy-library/
 touch .env
 ```
-Inside of `.env' file create settings variables for the main database. You can use docker db or create your own db: 
+Inside of `.env` file create settings variables.
+
+- For app info:
+```
+# App info settings - Optional variables
+APP_NAME="Your name for the app"  # Default: "FastAPI project"
+APP_DESCRIPTION="Your app description"
+APP_VERSION="Your app version"
+CONTACT_NAME="Your name"
+CONTACT_EMAIL="Your email"
+CONTACT_URL="Your url"
+```
+- For create admin user:
+```
+ADMIN_EMAIL="Your admin email"
+ADMIN_PASSWORD="Your admin password"
+```
+- For the main database. You can use docker db or create your own db:
 ```
 # main Postrgres db
 DB_USER="Your postgres user name"
@@ -29,7 +46,7 @@ DB_PORT=5432  # your can change it for using with your database
 DB_NAME="Your postgres db name"
 ECHO_SQL=False  # you can change it to True and SQLAlchemy will log all statements to console by default
 ```
-For testing db. You can use docker db or create your own db: 
+- For testing db. You can use docker db or create your own db: 
 ```
 # test Postrgres db
 TEST_DB_USER="Your testing postgres user name"
@@ -38,14 +55,14 @@ TEST_DB_HOST=db-test  # your can change it for using with your database
 TEST_DB_PORT=5432  # your can change it for using with your database
 TEST_DB_NAME="Your testing postgres db name"
 ```
-For users authentication. You should generate your own secret key, by `openssl rand -hex 32`:
+- For users authentication. You should generate your own secret key by `openssl rand -hex 32` command:
 ```
 # Oauth2 settings
 SECRET_KEY="Your secret key"  # make sure that secret key value not in public
 ALGORITHM=HS256  # algorithm for hash user's passwords to keep in db, you can change it
 ACCESS_TOKEN_EXPIRE_MINUTES=30  # you can change access token lifetime
 ```
-CORS settings:
+- CORS settings:
 ```
 #CORS
 # write down your origins or set it to '*' for all origins
@@ -57,4 +74,9 @@ CORS_ORIGINS=*
 After setting project variables you can start docker compose:
 ```sh
 docker compose up
+```
+You can create admin user. Get into app docker containder:
+```sh
+docker exec -it <container-id> bash
+python3 -m app.scripts.create_first_admin
 ```
