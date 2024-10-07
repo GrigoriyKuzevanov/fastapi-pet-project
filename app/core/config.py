@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from pydantic import BeforeValidator, PostgresDsn, computed_field
+from pydantic import BeforeValidator, PostgresDsn, RedisDsn, computed_field
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -62,6 +62,26 @@ class Settings(BaseSettings):
             host=self.test_db_host,
             port=self.test_db_port,
             path=self.test_db_name,
+        )
+
+    # redis settings
+    redis_password: str
+    redis_user: str
+    redis_user_password: str
+    redis_host: str
+    redis_port: int
+    redis_db: str
+
+    @computed_field
+    @property
+    def redis_url(self) -> RedisDsn:
+        return MultiHostUrl.build(
+            scheme="redis",
+            username=self.redis_user,
+            password=self.redis_user_password,
+            host=self.redis_host,
+            port=self.redis_port,
+            path=self.redis_db,
         )
 
     # crypt settings

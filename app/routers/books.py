@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi_cache.decorator import cache
 from sqlalchemy.orm import Session
 
 from app import models, oauth2, schemas
@@ -12,6 +13,7 @@ router = APIRouter(
 
 
 @router.get("/", response_model=list[schemas.BookOut])
+@cache(expire=30)
 def get_books(
     limit: int = 10, skip: int = 0, session: Session = Depends(database.get_db)
 ):

@@ -49,6 +49,18 @@ services:
       retries: 3
       start_period: 30s
 
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - 6380:6379
+    env_file:
+      - .env
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_USER=${REDIS_USER}
+      - REDIS_USER_PASSWORD=${REDIS_USER_PASSWORD}
+    
 
 volumes:
   library-db:

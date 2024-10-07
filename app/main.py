@@ -1,15 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.core.database import engine
-from app.models import Base
-from app.routers import authors, books, login, users
+from app.core.cache import lifespan
 from app.core.config import settings
-
-# Base.metadata.create_all(bind=engine)
-
+from app.routers import authors, books, login, users
 
 app = FastAPI(
+    lifespan=lifespan,
     title=settings.app_name,
     description=settings.app_description,
     version=settings.app_version,
@@ -30,7 +27,6 @@ if settings.cors_origins:
         allow_headers=["*"],
     )
 
-print(settings.cors_origins)
 
 app.include_router(books.router)
 app.include_router(authors.router)
